@@ -1,19 +1,17 @@
 <template>
-  <v-container>
-       <div>
-      <h3>Home</h3>
+ <div>
+    <div>
+      <h1>Home</h1>
     </div>
-  <v-row class="text-center">
-    <v-card
-    max-width="350"
-    outlined
-    class="ma-4 pa-2"
-   >
-    <v-list-item three-line>
+  <v-row class="text-center" cols="12">
+    <v-col md="3" sm="6">
+    <v-card >
+    <v-list-item >
       <v-list-item-avatar
           tile
           size="100"
           color="red"
+          class="white--text"
         >
         <p>150+ connections</p>
         </v-list-item-avatar>
@@ -26,9 +24,11 @@
         </v-list-item-content>
         </v-list-item>
    </v-card>
-    <v-card max-width="350" outlined class="ma-4 pa-2"> 
-      <v-list-item three-line>
-        <v-list-item-avatar tile size="100" color="purple">
+     </v-col>
+     <v-col md="3" sm="6">
+    <v-card > 
+      <v-list-item >
+        <v-list-item-avatar class="white--text" tile size="100" color="purple">
           <p>+500 shots</p>
         </v-list-item-avatar>
         <v-list-item-content>
@@ -40,9 +40,11 @@
         </v-list-item-content>
       </v-list-item>
     </v-card>
-    <v-card max-width="350" outlined class="ma-4 pa-2">
-      <v-list-item three-line>
-        <v-list-item-avatar tile size="100" color="blue">
+     </v-col>
+    <v-col md="3" sm="6">
+    <v-card >
+      <v-list-item>
+        <v-list-item-avatar class="white--text" tile size="100" color="blue">
           <p>+200 followers</p>
         </v-list-item-avatar>
         <v-list-item-content>
@@ -54,11 +56,12 @@
         </v-list-item-content>
       </v-list-item>
     </v-card>
-    
-    <v-card max-width="350" outlined class="ma-4 pa-2">  
-      <v-list-item three-line>
-        <v-list-item-avatar tile size="100" color="primary">
-          <p>+1000 likes</p>
+    </v-col>
+    <v-col md="3" sm="6">
+    <v-card >  
+      <v-list-item >
+        <v-list-item-avatar class="white--text" tile size="100" color="primary">
+          <p >+1000 likes</p>
         </v-list-item-avatar>
         <v-list-item-content>
           <span>
@@ -69,20 +72,176 @@
         </v-list-item-content>
       </v-list-item>
     </v-card>
- 
-
-    
-     <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Numquam adipisci corrupti quidem in porro. A sed eveniet quas eaque ipsum eos fuga assumenda, sit earum possimus voluptatem cupiditate ut beatae?</p>
+    </v-col>
     </v-row>
-  </v-container>
+        <v-spacer></v-spacer>
+      <h1>
+        Website data:
+      </h1>
+    <v-container fluid>
+      <v-row cols="12">
+        <v-col col="8" sm="6">
+        <v-card class="pa-6">
+          <v-card-title class="text-center "><h2>Website Visits</h2></v-card-title>
+          <div>
+            <linChart :chart-data="datacolection"> </linChart>
+          </div>
+        </v-card>
+        </v-col>
+        <v-col col="4" sm="6">
+        <v-card class="text-center pa-2">
+        <v-card-title class="text-center pa-4"><h2>Top Location</h2></v-card-title>
+        <div >
+          <polarchart :chart-data="polardata"> </polarchart>
+        </div>
+      </v-card>
+        </v-col>
+      </v-row>
+      <h1>
+        Work Data:
+      </h1>
+      <Details > </Details>
+      <projects > </projects>
+      </v-container>
+  </div>
 </template>
 
-<script>
-  export default {
-    name: 'HelloWorld',
 
-    data: () => ({
-      
-    })
-  }
+<script>
+import axios from 'axios'
+import LinChart from '../chart/LineChart.js'
+import polarchart from '../chart/PolarArea.js'
+import Details from './Details.vue'
+import Projects from './Projects.vue'
+
+export default {
+    components: { 
+        LinChart ,
+        polarchart,
+        Details,
+        Projects
+    },
+    data() {
+        return {
+            datacolection: null,
+            polardata: null,
+            loaded: false,
+            historical: '',
+            temperature: [0,1,2,3,4,5,6,7,8,9,10],
+            potentio: [],
+            time:[ 
+                '04-05-2020',
+                '05-05-2020',
+                '06-05-2020',
+                '07-05-2020',
+                '08-05-2020',
+                '09-05-2020',
+                '10-05-2020',
+                '11-05-2020',
+                '12-05-2020',
+                '13-05-2020',
+                '14-05-2020',
+                '15-05-2020',
+                '16-05-2020',
+                '17-05-2020',
+                '18-05-2020',
+                '19-05-2020',
+                '20-05-2020',
+                '21-05-2020',
+                '22-05-2020',
+                '23-05-2020',
+                '24-05-2020',
+                '26-05-2020',
+                '27-05-2020',
+                '28-05-2020',
+                '29-05-2020',
+                '30-05-2020',
+                '31-05-2020',
+                '02-06-2020',
+                '03-06-2020',
+                '04-05-2020',
+            ],
+            dataTime: '',
+            humidity: [10,9,8,7,6,5,4,3,2,1,0]
+            
+        }
+    },
+
+    async mounted() {
+        try {
+        this.polardataget()
+        this.fillData()
+        await this.getFavoriot()
+        } catch (error) {
+            console.log(error)
+        }
+        
+    },
+    methods: {
+        fillData() {
+            this.datacolection = {
+                labels: this.time,
+                datasets: [
+                    {
+                        label: 'Visitas al Web Site',
+                        backgroundColor: 'rgba(255, 159, 64, 0.2)',
+                        borderColor: 'orange',
+                        pointBackgroundColor: 'orange',
+                        borderWidth: 1,
+                        pointBorderColor: '#203A43',
+                        data: this.potentio
+                    }
+                ]
+            }
+        },
+
+        polardataget() {
+              this.polardata = {
+              datasets: [
+                {
+                  label: 'control',
+                  backgroundColor: [
+                     "rgba(255, 0, 0, 0.5)",
+                     "rgba(100, 255, 0, 0.5)",
+                     "rgba(200, 50, 255, 0.5)",
+                      "rgba(0, 100, 255, 0.5)"
+                  ],
+                  data: ['1200','1900','800','200']
+              }],
+              labels: ["Santiago", "Viña del Mar", "Concepcion", "Rancagua"]
+            }
+        },
+
+        getFavoriot() {
+            axios.get('https://api.coindesk.com/v1/bpi/historical/close.json')
+            .then((response) => {
+                this.historical = response.data.bpi
+                for (const prop in this.historical) {
+                    this.potentio.push(Math.round(this.historical[prop]))
+                }
+                console.log(this.potentio)
+            })
+            .catch (error =>{console.log(error)})
+        },
+
+        getTransaction() {
+            const headers = {"Access-Control-Allow-Origin": "*"}
+            axios.get('https://api.blockchain.info/charts/transactions-per-second?timespan=1weeks&rollingAverage=24hours&format=json' , headers)
+                .then((response) => {
+                    console.log(response)
+                })
+                .catch(error => {
+                    console.log(error)
+                })
+        }
+    }
+}
 </script>
+
+<style>
+.container {
+    width: 90%;
+    height: 120px;
+}
+
+</style>
